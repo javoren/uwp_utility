@@ -22,7 +22,7 @@ public:
 	typedef std::function<void(std::istream& stream)>	read_callback;
 
 private:
-	static void convert_uwp2cpp_ram(IBuffer ^ buffer, std::shared_ptr<read_callback> cb) {
+	static void convert_uwp2cpp_ram(IBuffer ^ buffer, read_callback cb) {
 		// IBufferオブジェクトからC++標準のistreamを作りたい
 		Platform::Object^ obj = buffer;
 		Microsoft::WRL::ComPtr<IInspectable> insp(reinterpret_cast<IInspectable*>(obj));
@@ -38,14 +38,14 @@ private:
 		CopyMemory(&pmx_raw_data[0], pmx_raw_data_ptr, buffer->Length);
 
 		boost::interprocess::basic_ivectorstream<std::vector<char> >  input_vector_stream(pmx_raw_data);
-		(*cb)(input_vector_stream);
+		cb(input_vector_stream);
 	}
 
 public:
 	UwpFileAccess();
 
 	// アセットファイルを読み込む
-	static void ReadAsset(std::wstring const & asset_file_name, std::shared_ptr<read_callback> cb) {
+	static void ReadAsset(std::wstring const & asset_file_name, read_callback cb) {
 		auto asset_fullpath = L"ms-appx:///Assets/" + asset_file_name;
 		auto uwp_file_name = ref new Platform::String(asset_fullpath.c_str());
 		auto uri = ref new Windows::Foundation::Uri(uwp_file_name);
